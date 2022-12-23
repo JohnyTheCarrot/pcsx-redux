@@ -80,16 +80,17 @@ end
 
 local function createIsoBuilderWrapper(wrapper)
     local iso = {
-        _wrapper = ffi.gc(wrapper, function(self) C.isoBuilderClose(self) C.deleteIsoBuilder(self) end),
+        _wrapper = ffi.gc(wrapper, function(self)
+            C.isoBuilderClose(self)
+            C.deleteIsoBuilder(self)
+        end),
         writeLicense = function(self, file)
             if not file then file = Support.File.failedFile() end
             C.isoBuilderWriteLicense(self._wrapper, file._wrapper)
         end,
         writeSector = function(self, sectorData, mode)
             if not mode then mode = 'M2_FORM1' end
-            if Support.isLuaBuffer(sectorData) then
-                sectorData = sectorData.data
-            end
+            if Support.isLuaBuffer(sectorData) then sectorData = sectorData.data end
             C.isoBuilderWriteSector(self._wrapper, sectorData, mode)
         end,
         close = function(self) C.isoBuilderClose(self._wrapper) end,
